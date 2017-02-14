@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="ch.vality.legacy.print" name="%LegacyPrint" schema="schema/LegacyPrint.exsd"/>
+   <!--<extension-point id="ch.vality.legacy.print" name="%LegacyPrint" schema="schema/ch.vality.legacy.print.exsd"/>-->
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
+            class="ch.vality.legacy.print.preferences.LegacyPrintPreferences"
+            id="ch.vality.legacy.print.preferences.LegacyPrintPreferences"
+            name="%LegacyPrintPreferences">
+      </page>
+   </extension>
+
+</plugin>

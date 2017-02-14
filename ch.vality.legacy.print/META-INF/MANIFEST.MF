@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Legacy Print Plugin
+Bundle-SymbolicName: ch.vality.legacy.print;singleton:=true
+Bundle-Version: 3.0.0.qualifier
+Bundle-Vendor: vality GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
+ ch.elexis.core.data,
+ org.eclipse.core.runtime,
+ ch.elexis.core.ui,
+ ch.rgw.utility
+Import-Package: org.eclipse.core.runtime
+Export-Package: ch.vality.legacy.print
