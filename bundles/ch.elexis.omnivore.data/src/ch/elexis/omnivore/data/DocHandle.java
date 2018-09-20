@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -195,6 +196,9 @@ public class DocHandle extends PersistentObject implements IOpaqueDocument {
 		if ((doc == null) || (doc.length == 0)) {
 			SWTHelper.showError(Messages.DocHandle_readErrorCaption,
 				Messages.DocHandle_readErrorText);
+			return;
+		}
+		if (Utils.containsSpecialChars(title, true)) {
 			return;
 		}
 		create(null);
@@ -578,25 +582,28 @@ public class DocHandle extends PersistentObject implements IOpaqueDocument {
 		String config_temp_filename = Utils.createNiceFileName(this);
 		File temp = null;
 		try {
+			Path tmpDir = Files.createTempDirectory("elexis");
 			if (config_temp_filename.length() > 0) {
-				String tmpDir = System.getProperty("java.io.tmpdir");
-				temp = new File(tmpDir, config_temp_filename + "." + fileExtension);
+				temp = new File(tmpDir.toString(), config_temp_filename + "." + fileExtension);
 				
 			} else {
 				// use title if given
 				if (title != null && !title.isEmpty()) {
-					String tmpDir = System.getProperty("java.io.tmpdir");
-					if (!title.toLowerCase().contains("." + fileExtension.toLowerCase())) {
-						temp = new File(tmpDir, title + "." + fileExtension);
+					// Remove all characters that shall not appear in the generated filename
+					String cleanTitle = title.replaceAll(java.util.regex.Matcher
+							.quoteReplacement(Preferences.cotf_unwanted_chars), "_");
+					if (!cleanTitle.toLowerCase().contains("." + fileExtension.toLowerCase())) {
+						temp = new File(tmpDir.toString(), cleanTitle + "." + fileExtension);
 					} else {
-						temp = new File(tmpDir, title);
+						temp = new File(tmpDir.toString(), cleanTitle);
 					}
 				} else {
-					temp = File.createTempFile("omni_", "_vore." + fileExtension);
+					temp = Files.createTempFile(tmpDir, "omni_", "_vore." + fileExtension).toFile();
 				}
 			}
+			tmpDir.toFile().deleteOnExit();
 			temp.deleteOnExit();
-			
+	
 			byte[] b = getContents(); // getBinary(FLD_DOC);
 			if (b == null) {
 				SWTHelper.showError(Messages.DocHandle_readErrorCaption2,
@@ -644,6 +651,10 @@ public class DocHandle extends PersistentObject implements IOpaqueDocument {
 		FileImportDialog fid = new FileImportDialog(Messages.DocHandle_scannedImageDialogCaption);
 		if (fid.open() == Dialog.OK) {
 			try {
+				String title = fid.title;
+				if (Utils.containsSpecialChars(title, true)) {
+						return null;
+				}
 				Document pdf = new Document(PageSize.A4);
 				pdf.setMargins(0, 0, 0, 0);
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(100000);
@@ -702,9 +713,12 @@ public class DocHandle extends PersistentObject implements IOpaqueDocument {
 				Messages.DocHandle_importErrorDirectoryText);
 			return null;
 		}
-		
 		FileImportDialog fid = new FileImportDialog(file.getName());
 		if (fid.open() == Dialog.OK) {
+			String title = fid.title;
+			if (Utils.containsSpecialChars(title, true)) {
+				return null;
+			}
 			try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
 				int in;

@@ -225,25 +225,29 @@ public class ArtikelstammImporter {
 			subMonitor.worked(1);
 		}
 		
-		StringBuilder sb = new StringBuilder();
-		sb.append("Die folgenden Artikelstamm-Referenzen in den genannten Leistungsblöcken sind nicht mehr auflösbar:\n\n");
-		Set<Entry<String, List<String>>> entrySet = nonResolvableArtikelstammItems.entrySet();
-		for (Entry<String, List<String>> entry : entrySet) {
-			sb.append(entry.getKey()+":\n");
-			List<String> value = entry.getValue();
-			for (String string : value) {
-				sb.append("\t"+string+"\n");
-			}
-		}
 		
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run(){
-				MessageDialog.openInformation(
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-					"Leistungsblock Artikelstamm-Referenzen", sb.toString());
+		Set<Entry<String, List<String>>> entrySet = nonResolvableArtikelstammItems.entrySet();
+		if (!entrySet.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(
+				"Die folgenden Artikelstamm-Referenzen in den genannten Leistungsblöcken sind nicht mehr auflösbar:\n\n");
+			for (Entry<String, List<String>> entry : entrySet) {
+				sb.append(entry.getKey() + ":\n");
+				List<String> value = entry.getValue();
+				for (String string : value) {
+					sb.append("\t" + string + "\n");
+				}
 			}
-		});
+			
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run(){
+					MessageDialog.openInformation(
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+						"Leistungsblock Artikelstamm-Referenzen", sb.toString());
+				}
+			});
+		}
 	}
 	
 	private static void inactivateNonBlackboxedItems(){
@@ -431,7 +435,8 @@ public class ArtikelstammImporter {
 		
 		fields.add(ArtikelstammItem.FLD_GTIN);
 		values.add(item.getGTIN());
-		
+		fields.add(ArtikelstammItem.FLD_TYP);
+		values.add(item.getPHARMATYPE().contentEquals("P")? "P": "N");
 		fields.add(ArtikelstammItem.FLD_DSCR);
 		values.add(trimDSCR(item.getDSCR(), item.getGTIN()));
 		
