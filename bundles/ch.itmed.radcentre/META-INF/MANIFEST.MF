@@ -1,13 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Radcentre
+Bundle-Name: XML Importer for RadCentre
 Bundle-SymbolicName: ch.itmed.radcentre;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 3.7.0.qualifier
 Automatic-Module-Name: ch.itmed.radcentre
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.jobs,
  org.eclipse.core.runtime;bundle-version="3.13.0",
  org.eclipse.ui;bundle-version="3.109.0",
  ch.elexis.core.data,
- ch.rgw.utility;bundle-version="3.7.0"
+ ch.rgw.utility;bundle-version="3.6.0",
+ ch.elexis.core.ui,
+ org.eclipse.swt,
+ ch.elexis.core,
+ ch.elexis.base.ch.arzttarife;bundle-version="3.6.0",
+ ch.elexis.base.ch.ticode,
+ at.medevit.ch.artikelstamm.elexis.common
 Bundle-ActivationPolicy: lazy
+Bundle-Vendor: IT-Med AG

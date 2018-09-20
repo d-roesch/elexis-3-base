@@ -4,4 +4,13 @@
 	<extension point="org.eclipse.ui.startup">
 		<startup class="ch.itmed.radcentre.job.Startup"></startup>
 	</extension>
+	<extension
+          point="org.eclipse.ui.preferencePages">
+          <page
+            category="ch.elexis.preferences.transporters"
+            class="ch.itmed.radcentre.ui.preferences.RadcentrePreferences"
+            id="ch.itmed.radcentre.preferencePage"
+            name="RadCentre Import">
+      </page>
+    </extension>
 </plugin>

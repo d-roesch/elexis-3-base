@@ -9,21 +9,8 @@
  *     IT-Med AG <info@it-med-ag.ch> - initial implementation
  ******************************************************************************/
 
-package ch.itmed.radcentre.importer;
+package ch.itmed.radcentre.preferences;
 
-import ch.itmed.radcentre.xml.SAXHandler;
-
-public final class DataImporter {
-
-	public void startImport(SAXHandler saxHandler) {
-		PatientImporter patientImp = new PatientImporter(saxHandler.getPatient());
-		patientImp.addPatient();
-
-		CaseImporter caseImp = new CaseImporter(saxHandler.getCase(), patientImp.getPatient());
-		caseImp.addCase();
-
-		ConsultationImporter consultationImp = new ConsultationImporter(caseImp.getCase(), saxHandler.getConsultation());
-		consultationImp.addConsultation();
-	}
-
+public final class PreferenceConstants {
+	public static final String RADCENTRE_EXPORT_PATH = "itmed/radcentre/export-path";
 }
