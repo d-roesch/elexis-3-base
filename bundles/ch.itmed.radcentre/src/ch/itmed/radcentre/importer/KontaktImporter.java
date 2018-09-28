@@ -21,6 +21,7 @@ import ch.elexis.data.Kontakt;
 import ch.elexis.data.Mandant;
 import ch.elexis.data.Organisation;
 import ch.elexis.data.Query;
+import ch.itmed.radcentre.ui.MessageBoxUtil;
 
 public final class KontaktImporter {
 	private static Logger logger = LoggerFactory.getLogger(KontaktImporter.class);
@@ -39,9 +40,10 @@ public final class KontaktImporter {
 		}
 	}
 
-	public static Kontakt getKontaktFromGln(String gln) {
+	public static Kontakt getReferrerFromGln(String gln) {
 		if (gln.isEmpty()) {
 			logger.error("No contact found because GLN is empty");
+			MessageBoxUtil.setErrorMsg("Kein Zuweiser gefunden, weil GLN leer ist.");
 			return null;
 		}
 
@@ -53,6 +55,7 @@ public final class KontaktImporter {
 
 		if (result.size() == 0) {
 			logger.error("No contact found with GLN: " + gln);
+			MessageBoxUtil.setErrorMsg("Kein Zuweiser mit GLN \"" + gln + "\" gefunden.");
 		}
 
 		return result.get(0);
@@ -67,6 +70,7 @@ public final class KontaktImporter {
 
 		if (result.size() == 0) {
 			logger.error("No mandator found with GLN: " + gln);
+			MessageBoxUtil.setErrorMsg("Kein Leistungserbringer mit GLN \"" + gln + "\" gefunden.");
 		}
 
 		return result.get(0);

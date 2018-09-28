@@ -43,7 +43,7 @@ public final class CaseImporter {
 				fall.setInfoString("Unfallnummer", caseDao.getAccidentNumber());
 				fall.setInfoElement("Unfalldatum", caseDao.getAccidentDate());
 			}
-			fall.setInfoString("Zuweiser", KontaktImporter.getKontaktFromGln(caseDao.getReferrer()).getId());
+			fall.setInfoString("Zuweiser", KontaktImporter.getReferrerFromGln(caseDao.getReferrer()).getId());
 		}
 	}
 
@@ -98,12 +98,21 @@ public final class CaseImporter {
 			fall.setGarant(getInvoiceRecipient());
 		}
 
-		if (!fall.getInfoString(Messages.FallDetailBlatt2_InsuranceNumber).equals(caseDao.getInsuranceNumber())) {
+		if (fall.getInfoString(Messages.FallDetailBlatt2_InsuranceNumber) != null) {
+			if (!fall.getInfoString(Messages.FallDetailBlatt2_InsuranceNumber).equals(caseDao.getInsuranceNumber())) {
+				fall.setRequiredString(Messages.FallDetailBlatt2_InsuranceNumber, caseDao.getInsuranceNumber());
+			}
+		} else {
 			fall.setRequiredString(Messages.FallDetailBlatt2_InsuranceNumber, caseDao.getInsuranceNumber());
 		}
 
-		if (!fall.getRequiredContact("Zuweiser").equals(KontaktImporter.getKontaktFromGln(caseDao.getReferrer()))) {
-			fall.setInfoString("Zuweiser", KontaktImporter.getKontaktFromGln(caseDao.getReferrer()).getId());
+		if (fall.getRequiredContact("Zuweiser") != null) {
+			if (!fall.getRequiredContact("Zuweiser")
+					.equals(KontaktImporter.getReferrerFromGln(caseDao.getReferrer()))) {
+				fall.setInfoString("Zuweiser", KontaktImporter.getReferrerFromGln(caseDao.getReferrer()).getId());
+			}
+		} else {
+			fall.setInfoString("Zuweiser", KontaktImporter.getReferrerFromGln(caseDao.getReferrer()).getId());
 		}
 
 		if (fall.getAbrechnungsSystem().equals("UVG")) {

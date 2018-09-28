@@ -16,15 +16,20 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.PlatformUI;
 
 public final class MessageBoxUtil {
+	private static String errorMsg;
 
-	public static void showErrorDialog(final String title, final String message) {
+	public static void setErrorMsg(String error) {
+		errorMsg = error;
+	}
+
+	public static void showErrorDialog(final String title) {
 
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
 				MessageBox messgeBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 						SWT.ICON_ERROR);
 				messgeBox.setText(title);
-				messgeBox.setMessage(message);
+				messgeBox.setMessage(errorMsg);
 				messgeBox.open();
 			}
 		});

@@ -23,8 +23,8 @@ public class Startup implements IStartup {
 
 		String path = CoreHub.globalCfg.get(PreferenceConstants.RADCENTRE_EXPORT_PATH, "");
 		if (path.isEmpty()) {
-			MessageBoxUtil.showErrorDialog("Kein RadCentre Export Pfad spezifiziert",
-					"Spezifizieren Sie einen Export Pfad und starten Sie Elexis danach erneut");
+			MessageBoxUtil.setErrorMsg("Spezifizieren Sie einen Export Pfad und starten Sie Elexis danach erneut.");
+			MessageBoxUtil.showErrorDialog("Kein RadCentre Export Pfad spezifiziert");
 		} else {
 			(new Thread(new DirectoryWatcherRunnable())).start();
 		}

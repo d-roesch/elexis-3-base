@@ -147,8 +147,7 @@ public final class DirectoryWatcherRunnable implements Runnable {
 			} catch (Exception e) {
 				logger.error("Failed to process file: " + file, e);
 				moveToErrDir(file);
-				MessageBoxUtil.showErrorDialog("Fehler beim RadCentre Import",
-						"Die Datei " + file + " konnte nicht importiert werden.");
+				MessageBoxUtil.showErrorDialog("Fehler beim RadCentre Import");
 			}
 
 			FileLock.release(file);

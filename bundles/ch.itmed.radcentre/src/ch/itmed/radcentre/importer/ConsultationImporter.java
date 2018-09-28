@@ -24,6 +24,7 @@ import ch.elexis.data.TarmedLeistung;
 import ch.elexis.data.Verrechnet;
 import ch.itmed.radcentre.data.dao.ConsultationDao;
 import ch.itmed.radcentre.data.dao.ConsultationDao.TarmedSide;
+import ch.itmed.radcentre.ui.MessageBoxUtil;
 import ch.rgw.tools.Result;
 import ch.rgw.tools.TimeTool;
 
@@ -145,6 +146,7 @@ public final class ConsultationImporter {
 					serviceResult = false;
 					failedService = new Result<IVerrechenbar>(Result.SEVERITY.WARNING, 2,
 							"No TarmedLeistung found with code: " + c, null, false);
+					MessageBoxUtil.setErrorMsg("Ungültiger Tarmed Code \"" + c + " \"");
 					return;
 				}
 
@@ -220,6 +222,7 @@ public final class ConsultationImporter {
 
 			if (result.isEmpty()) {
 				logger.error("No article found with GTIN: " + gtin + " in table ARTIKELSTAMM_CH");
+				MessageBoxUtil.setErrorMsg("Kein Artikel mit GTIN \"" + gtin + "\" gefunden.");
 				serviceResult = false;
 				return null;
 			}
