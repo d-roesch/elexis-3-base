@@ -18,10 +18,10 @@ import java.util.Date;
 public class DataConverter {
 
 	public static String patientGender(String gender) {
-		if (gender.equals("M")) {
+		if (gender.equalsIgnoreCase("M")) {
 			return "m";
-		} else if (gender.equals("F")) {
-			return "f";
+		} else if (gender.equalsIgnoreCase("F")) {
+			return "w";
 		}
 		return "";
 	}
