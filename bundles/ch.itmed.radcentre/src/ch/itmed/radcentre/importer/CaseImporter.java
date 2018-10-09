@@ -15,7 +15,6 @@ import java.util.List;
 
 import ch.elexis.data.Fall;
 import ch.elexis.data.Kontakt;
-import ch.elexis.data.Organisation;
 import ch.elexis.data.Patient;
 import ch.elexis.data.Query;
 import ch.elexis.data.Rechnung;
@@ -36,7 +35,7 @@ public final class CaseImporter {
 		if (!checkExistingCase()) {
 			fall = patient.neuerFall("Allgemein", "", caseDao.getBillingMethod());
 			fall.setFallNummer(caseDao.getNumber());
-			fall.setCostBearer(getCostBearer(caseDao.getCostBearer()));
+			fall.setCostBearer(KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod()));
 			fall.setGarant(getInvoiceRecipient());
 			fall.setRequiredString(Messages.FallDetailBlatt2_InsuranceNumber, caseDao.getInsuranceNumber());
 			if (caseDao.getBillingMethod().equals("UVG")) {
@@ -83,11 +82,12 @@ public final class CaseImporter {
 		}
 
 		if (fall.getCostBearer() != null) {
-			if (!fall.getCostBearer().equals(getCostBearer(caseDao.getCostBearer()))) {
-				fall.setCostBearer(getCostBearer(caseDao.getCostBearer()));
+			if (!fall.getCostBearer()
+					.equals(KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod()))) {
+				fall.setCostBearer(KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod()));
 			}
 		} else {
-			fall.setCostBearer(getCostBearer(caseDao.getCostBearer()));
+			fall.setCostBearer(KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod()));
 		}
 
 		if (fall.getGarant() != null) {
@@ -135,25 +135,11 @@ public final class CaseImporter {
 
 	}
 
-	private Kontakt getCostBearer(String name) {
-		Query<Organisation> query = new Query<>(Organisation.class);
-		query.add("Name", Query.EQUALS, name);
-		List<Organisation> result = query.execute();
-
-		// Check if costBearer already exists, otherwise create a new one.
-		if (result.size() == 0) {
-			return new Organisation(name, "");
-		} else {
-			Kontakt costBearer = result.get(0);
-			return costBearer;
-		}
-	}
-
 	private Kontakt getInvoiceRecipient() {
 		if (caseDao.getInvoiceRecipient().equals("S")) {
 			return patient;
 		} else {
-			return getCostBearer(caseDao.getCostBearer());
+			return KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod());
 		}
 	}
 }

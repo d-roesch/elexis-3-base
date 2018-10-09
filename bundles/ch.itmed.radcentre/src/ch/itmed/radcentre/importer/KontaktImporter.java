@@ -12,28 +12,44 @@
 package ch.itmed.radcentre.importer;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.elexis.data.Kontakt;
 import ch.elexis.data.Mandant;
-import ch.elexis.data.Organisation;
 import ch.elexis.data.Query;
+import ch.elexis.data.Xid;
 import ch.itmed.radcentre.ui.MessageBoxUtil;
 
 public final class KontaktImporter {
 	private static Logger logger = LoggerFactory.getLogger(KontaktImporter.class);
 
-	public static Kontakt getCostBearer(String name) {
-		Query<Organisation> query = new Query<>(Organisation.class);
-		query.add("Name", Query.EQUALS, name);
-		List<Organisation> result = query.execute();
+	public static Kontakt getCostBearer(String name, String billingMethod) {
 
-		// Check if costBearer already exists, otherwise create a new one.
+		String insurance;
+		if (name.indexOf(" ") != -1) {
+			insurance = name.substring(0, name.indexOf(" ") - 1);
+		} else {
+			insurance = name;
+		}
+
+		String bm;
+		if (billingMethod.equalsIgnoreCase("UVG")) {
+			bm = "UVG";
+		} else {
+			bm = "KVG";
+		}
+
+		Query<Kontakt> query = new Query<>(Kontakt.class);
+		query.add(Kontakt.FLD_IS_ORGANIZATION, Query.EQUALS, "1");
+		query.add("Bezeichnung1", Query.LIKE, insurance);
+		query.add("TitelSuffix", Query.EQUALS, bm);
+		List<Kontakt> result = query.execute();
+
 		if (result.size() == 0) {
-			return new Organisation(name, "");
+			logger.debug("No insurance Kontakt found with name: " + name);
+			return null;
 		} else {
 			Kontakt costBearer = result.get(0);
 			return costBearer;
@@ -42,37 +58,45 @@ public final class KontaktImporter {
 
 	public static Kontakt getReferrerFromGln(String gln) {
 		if (gln.isEmpty()) {
-			logger.error("No contact found because GLN is empty");
+			logger.error("No Kontakt found because GLN is empty");
 			MessageBoxUtil.setErrorMsg("Kein Zuweiser gefunden, weil GLN leer ist.");
-			return null;
+			throw new NullPointerException("No Kontakt found because GLN is empty");
 		}
 
-		Query<Kontakt> query = new Query<>(Kontakt.class);
-		List<Kontakt> contacts = query.execute();
-
-		List<Kontakt> result = (List<Kontakt>) contacts.stream()
-				.filter(contact -> contact.getInfoString("EAN").equals(gln)).collect(Collectors.toList());
+		Query<Xid> query = new Query<>(Xid.class);
+		query.add(Xid.FLD_DOMAIN, Query.EQUALS, "www.xid.ch/id/ean");
+		query.add(Xid.FLD_ID_IN_DOMAIN, Query.EQUALS, gln);
+		List<Xid> result = query.execute();
 
 		if (result.size() == 0) {
-			logger.error("No contact found with GLN: " + gln);
+			logger.error("No Kontakt found with GLN: " + gln);
 			MessageBoxUtil.setErrorMsg("Kein Zuweiser mit GLN \"" + gln + "\" gefunden.");
+			throw new NullPointerException("No Kontakt found with GLN: " + gln);
+		} else {
+			Xid xid = result.get(0);
+			return (Kontakt) xid.getObject();
 		}
-
-		return result.get(0);
 	}
 
-	public static Mandant getServiceProviderFromGln(String gln) throws IndexOutOfBoundsException {
-		Query<Mandant> query = new Query<>(Mandant.class);
-		List<Mandant> mandators = query.execute();
-
-		List<Mandant> result = (List<Mandant>) mandators.stream()
-				.filter(contact -> contact.getInfoString("EAN").equals(gln)).collect(Collectors.toList());
-
-		if (result.size() == 0) {
-			logger.error("No mandator found with GLN: " + gln);
-			MessageBoxUtil.setErrorMsg("Kein Leistungserbringer mit GLN \"" + gln + "\" gefunden.");
+	public static Mandant getServiceProviderFromGln(String gln) {
+		if (gln.isEmpty()) {
+			logger.error("No Mandant found because GLN is empty");
+			MessageBoxUtil.setErrorMsg("Kein Leistungserbringer gefunden, weil GLN leer ist.");
+			throw new NullPointerException("No Mandant found because GLN is empty");
 		}
 
-		return result.get(0);
+		Query<Xid> query = new Query<>(Xid.class);
+		query.add(Xid.FLD_DOMAIN, Query.EQUALS, "www.xid.ch/id/ean");
+		query.add(Xid.FLD_ID_IN_DOMAIN, Query.EQUALS, gln);
+		List<Xid> result = query.execute();
+
+		if (result.size() == 0) {
+			logger.error("No Mandant found with GLN: " + gln);
+			MessageBoxUtil.setErrorMsg("Kein Leistungserbringer mit GLN \"" + gln + "\" gefunden.");
+			throw new NullPointerException("No Mandant found with GLN: " + gln);
+		} else {
+			Xid xid = result.get(0);
+			return Mandant.load(xid.get(Xid.FLD_OBJECT));
+		}
 	}
 }
