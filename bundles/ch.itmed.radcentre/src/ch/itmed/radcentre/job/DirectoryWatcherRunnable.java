@@ -45,6 +45,7 @@ public final class DirectoryWatcherRunnable implements Runnable {
 	private Map<WatchKey, Path> keys;
 	private Path exportPath;
 	private Path errorPath;
+	private Path archivePath;
 	private static Logger logger = LoggerFactory.getLogger(DirectoryWatcherRunnable.class);
 
 	@Override
@@ -55,7 +56,7 @@ public final class DirectoryWatcherRunnable implements Runnable {
 			this.watcher = FileSystems.getDefault().newWatchService();
 			this.keys = new HashMap<WatchKey, Path>();
 			registerDirectory();
-			createErrorDirectory();
+			createDirectories();
 			processExistingFiles();
 			directoryWatchLoop();
 
@@ -71,10 +72,15 @@ public final class DirectoryWatcherRunnable implements Runnable {
 		keys.put(key, exportPath);
 	}
 
-	private void createErrorDirectory() throws IOException {
+	private void createDirectories() throws IOException {
 		errorPath = Paths.get(exportPath.toString(), "\\error\\");
 		if (!Files.exists(errorPath)) {
 			Files.createDirectory(errorPath);
+		}
+
+		archivePath = Paths.get(exportPath.toString(), "\\archiv\\");
+		if (!Files.exists(archivePath)) {
+			Files.createDirectory(archivePath);
 		}
 	}
 
@@ -143,28 +149,27 @@ public final class DirectoryWatcherRunnable implements Runnable {
 
 			try {
 				XmlParser.run(file);
-				Files.delete(file);
+				moveFileToDir(file, archivePath);
 			} catch (Exception e) {
 				logger.error("Failed to process file: " + file, e);
-				moveToErrDir(file);
+				moveFileToDir(file, errorPath);
 				MessageBoxUtil.showErrorDialog("Fehler beim RadCentre Import");
 			}
 
 			FileLock.release(file);
 		} else {
 			logger.error("Failed to acquire lock for file: " + file);
-			moveToErrDir(file);
+			moveFileToDir(file, errorPath);
 		}
 	}
 
-	private void moveToErrDir(Path file) {
-		Path moveTo = Paths.get(errorPath.toString(), file.getFileName().toString());
+	private void moveFileToDir(Path file, Path dir) {
+		Path moveTo = Paths.get(dir.toString(), file.getFileName().toString());
 
 		try {
 			Files.move(file, moveTo, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error("", e);
 		}
-
 	}
 }
