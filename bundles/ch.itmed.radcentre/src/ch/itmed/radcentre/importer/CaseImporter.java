@@ -136,7 +136,7 @@ public final class CaseImporter {
 	}
 
 	private Kontakt getInvoiceRecipient() {
-		if (caseDao.getInvoiceRecipient().equals("S")) {
+		if (caseDao.getInvoiceRecipient().equalsIgnoreCase("S")) {
 			return patient;
 		} else {
 			return KontaktImporter.getCostBearer(caseDao.getCostBearer(), caseDao.getBillingMethod());

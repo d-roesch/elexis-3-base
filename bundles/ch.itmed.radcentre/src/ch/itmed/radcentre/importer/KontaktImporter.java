@@ -43,13 +43,14 @@ public final class KontaktImporter {
 
 		Query<Kontakt> query = new Query<>(Kontakt.class);
 		query.add(Kontakt.FLD_IS_ORGANIZATION, Query.EQUALS, "1");
-		query.add("Bezeichnung1", Query.LIKE, insurance);
+		query.add("Bezeichnung1", Query.LIKE, "%" + insurance + "%");
 		query.add("TitelSuffix", Query.EQUALS, bm);
 		List<Kontakt> result = query.execute();
 
 		if (result.size() == 0) {
+			MessageBoxUtil.setErrorMsg("Es wurde kein Kostenträger namens \"" + insurance + "\" gefunden.");
 			logger.debug("No insurance Kontakt found with name: " + name);
-			return null;
+			throw new NullPointerException("No insurance Kontakt found with name: " + name);
 		} else {
 			Kontakt costBearer = result.get(0);
 			return costBearer;
