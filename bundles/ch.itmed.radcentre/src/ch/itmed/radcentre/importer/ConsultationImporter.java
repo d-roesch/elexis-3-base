@@ -51,47 +51,11 @@ public final class ConsultationImporter {
 	}
 
 	public void addConsultation() {
-		if (!checkExistingConsultation()) {
-			addNewConsultation();
-		}
-	}
-
-	/**
-	 * Checks for an existing Konsultation for a specific date
-	 * 
-	 * @return
-	 */
-	private boolean checkExistingConsultation() {
-		Konsultation[] cons = fall.getBehandlungen(false);
-		StringBuilder sb = new StringBuilder(consultationDao.getDate());
-		String date = sb.substring(6, 8) + "." + sb.substring(4, 6) + "." + sb.substring(0, 4);
-
-		for (Konsultation con : cons) {
-			if (con.getDatum().equals(date)) {
-				konsultation = con;
-				updateExistingConsultation();
-				return true;
-			}
-		}
-
-		return false;
+		addNewConsultation();
 	}
 
 	private void addNewConsultation() {
 		konsultation = fall.neueKonsultation();
-		konsultation.setDatum(consultationDao.getDate(), false);
-		if (addServiceProvider()) {
-			addDiagnose();
-			addServices();
-		}
-	}
-
-	private void updateExistingConsultation() {
-		// First we remove all services
-		List<Verrechnet> services = konsultation.getLeistungen();
-		services.stream().forEach(s -> konsultation.removeLeistung(s));
-
-		// Second we persist the new data
 		konsultation.setDatum(consultationDao.getDate(), false);
 		if (addServiceProvider()) {
 			addDiagnose();
