@@ -12,18 +12,14 @@
 package ch.itmed.radcentre.data.dao;
 
 public class CaseDao {
-	private String number;
 	private String billingMethod;
 	private String costBearer;
 	private String insuranceNumber;
 	private String accidentDate;
 	private String accidentNumber;
+	private String ivNumber;
 	private String invoiceRecipient;
 	private String referrer;
-
-	public String getNumber() {
-		return number;
-	}
 
 	public String getBillingMethod() {
 		return billingMethod;
@@ -44,6 +40,10 @@ public class CaseDao {
 	public String getAccidentNumber() {
 		return accidentNumber;
 	}
+	
+	public String getIvNumber() {
+		return ivNumber;
+	}
 
 	public String getInvoiceRecipient() {
 		return invoiceRecipient;
@@ -52,11 +52,7 @@ public class CaseDao {
 	public String getReferrer() {
 		return referrer;
 	}
-
-	public void setNumber(String number) {
-		this.number = number;
-	}
-
+	
 	public void setBillingMethod(String billingMethod) {
 		this.billingMethod = billingMethod;
 	}
@@ -75,6 +71,10 @@ public class CaseDao {
 
 	public void setAccidentNumber(String accidentNumber) {
 		this.accidentNumber = accidentNumber;
+	}
+	
+	public void setIvNumber(String ivNumber) {
+		this.ivNumber = ivNumber;
 	}
 
 	public void setInvoiceRecipient(String invoiceRecipient) {

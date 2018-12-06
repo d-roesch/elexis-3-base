@@ -14,7 +14,7 @@ package ch.itmed.radcentre.importer;
 import java.util.List;
 import java.util.function.Consumer;
 import ch.artikelstamm.elexis.common.ArtikelstammItem;
-import ch.elexis.base.ch.ticode.TessinerCode;
+import ch.elexis.data.TICode;
 import ch.elexis.core.data.interfaces.IVerrechenbar;
 import ch.elexis.data.Artikel;
 import ch.elexis.data.Fall;
@@ -51,11 +51,51 @@ public final class ConsultationImporter {
 	}
 
 	public void addConsultation() {
-		addNewConsultation();
+		if (!checkExistingConsultation()) {
+			addNewConsultation();
+		}
+	}
+
+	/**
+	 * Checks for an existing Konsultation for a specific date
+	 * 
+	 * @return
+	 */
+	private boolean checkExistingConsultation() {
+		String consId = fall
+				.getInfoString("RadCentreSession" + consultationDao.getVisitNumber() + consultationDao.getSessionId());
+		if (consId.isEmpty()) {
+			return false;
+		}
+
+		Konsultation cons = Konsultation.load(consId);
+		if (cons != null) {
+			if (cons.get("deleted").equals("1")) {
+				return false;
+			}
+			konsultation = cons;
+			updateExistingConsultation();
+			return true;
+		}
+		return false;
 	}
 
 	private void addNewConsultation() {
 		konsultation = fall.neueKonsultation();
+		fall.setInfoString("RadCentreSession" + consultationDao.getVisitNumber() + consultationDao.getSessionId(),
+				konsultation.getId());
+		konsultation.setDatum(consultationDao.getDate(), false);
+		if (addServiceProvider()) {
+			addDiagnose();
+			addServices();
+		}
+	}
+
+	private void updateExistingConsultation() {
+		// First we remove all services
+		List<Verrechnet> services = konsultation.getLeistungen();
+		services.stream().forEach(s -> konsultation.removeLeistung(s));
+		// Second we persist the new data
 		konsultation.setDatum(consultationDao.getDate(), false);
 		if (addServiceProvider()) {
 			addDiagnose();
@@ -93,6 +133,7 @@ public final class ConsultationImporter {
 		addArticles();
 
 		if (!serviceResult) {
+			MessageBoxUtil.setErrorMsg(failedService.toString());
 			deleteConsultation();
 		}
 	}
@@ -117,8 +158,22 @@ public final class ConsultationImporter {
 				Result<IVerrechenbar> result = konsultation.addLeistung(tl);
 
 				if (!result.isOK()) {
-					serviceResult = false;
-					failedService = result;
+					boolean ignoreErr = false;
+
+					List<Verrechnet> tarmed = konsultation.getLeistungen();
+					System.out.println(tarmed.size());
+					for (Verrechnet leistung : konsultation.getLeistungen()) {
+						// Test if the code is already included in the consultation
+						// If this is the case, ignore the error and continue
+						if (leistung.getCode().equals(c)) {
+							ignoreErr = true;
+						}
+					}
+
+					if (!ignoreErr) {
+						serviceResult = false;
+						failedService = result;
+					}
 				}
 			}
 			tarmedIndex++;
@@ -196,16 +251,13 @@ public final class ConsultationImporter {
 	}
 
 	private void addDiagnose() {
-		/*
-		 * Currently we do not set the TessinerCode because of following bug:
-		 * https://github.com/elexis/elexis-3-base/issues/161
-		 * 
-		 * konsultation.getDiagnosen().forEach(d -> konsultation.removeDiagnose(d));
-		 * 
-		 * if (fall.getAbrechnungsSystem().equals("UVG")) {
-		 * konsultation.addDiagnose(TessinerCode.getFromCode("R9")); } else {
-		 * konsultation.addDiagnose(TessinerCode.getFromCode("U9")); }
-		 */
+		konsultation.getDiagnosen().forEach(d -> konsultation.removeDiagnose(d));
+
+		if (Konsultation.getDefaultDiagnose() != null) {
+			konsultation.addDiagnose(Konsultation.getDefaultDiagnose());
+		}
+
+		consultationDao.getDiagnoses().forEach(d -> konsultation.addDiagnose(TICode.getFromCode(d)));
 	}
 
 }

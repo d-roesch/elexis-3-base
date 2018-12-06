@@ -72,10 +72,7 @@ public final class SAXHandler extends DefaultHandler {
 		case "PatientAHVNo":
 			patient.setAhv(content);
 			break;
-
-		case "VisitNumber":
-			caseDao.setNumber(content);
-			break;
+			
 		case "PatientStatus":
 			caseDao.setBillingMethod(content);
 			break;
@@ -91,6 +88,9 @@ public final class SAXHandler extends DefaultHandler {
 		case "AccidentNo":
 			caseDao.setAccidentNumber(content);
 			break;
+		case "CaseNo":
+			caseDao.setIvNumber(content);
+			break;
 		case "InvoiceRecipient":
 			caseDao.setInvoiceRecipient(content);
 			break;
@@ -105,8 +105,14 @@ public final class SAXHandler extends DefaultHandler {
 				tarmedService = true;
 			}
 			break;
+		case "VisitNumber":
+			consultationDao.setVisitNumber(content);
+			break;
 		case "ServiceDate":
 			consultationDao.setDate(DataConverter.instantToElexisDate(content));
+			break;
+		case "SessionID":
+			consultationDao.setSessionId(content);
 			break;
 		case "ServiceProviderGLN":
 			consultationDao.setServiceProviderGln(content);
@@ -126,12 +132,13 @@ public final class SAXHandler extends DefaultHandler {
 				consultationDao.addArticleQuantity(Integer.parseInt(content));
 			}
 			break;
-
 		case "ParamValue":
 			if (tarmedService) {
 				consultationDao.addTarmedSide(tarmedCode, content);
 			}
 			break;
+		case "DiagCode":
+			consultationDao.addDiagnosis(content);
 		}
 	}
 

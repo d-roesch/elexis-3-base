@@ -17,11 +17,14 @@ import java.util.List;
 public final class ConsultationDao {
 	private String serviceProviderGln;
 	private String date;
+	private String sessionId;
+	private String visitNumber;
 	private List<String> tarmedCodes = new ArrayList<>();
 	private List<Integer> tarmedQuantities = new ArrayList<>();
 	private List<TarmedSide> tarmedSides = new ArrayList<>();
 	private List<String> articlesGtins = new ArrayList<>();
 	private List<Integer> articleQuantities = new ArrayList<>();
+	private List<String> diagnoses = new ArrayList<>();
 
 	public String getServiceProviderGln() {
 		return serviceProviderGln;
@@ -29,6 +32,14 @@ public final class ConsultationDao {
 
 	public String getDate() {
 		return date;
+	}
+	
+	public String getSessionId() {
+		return sessionId;
+	}
+	
+	public String getVisitNumber() {
+		return visitNumber;
 	}
 
 	public List<String> getTarmedCodes() {
@@ -50,6 +61,10 @@ public final class ConsultationDao {
 	public List<Integer> getArticleQuantities () {
 		return articleQuantities;
 	}
+	
+	public List<String> getDiagnoses() {
+		return diagnoses;
+	}
 
 	public void setServiceProviderGln(String serviceProviderGln) {
 		this.serviceProviderGln = serviceProviderGln;
@@ -57,6 +72,14 @@ public final class ConsultationDao {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+	
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+	
+	public void setVisitNumber(String visitNumber) {
+		this.visitNumber = visitNumber;
 	}
 
 	public void addTarmedCode(String tarmedCode) {
@@ -109,6 +132,10 @@ public final class ConsultationDao {
 		public void setTarmedSide(String tarmedSide) {
 			this.tarmedSide = tarmedSide;
 		}
+	}
+	
+	public void addDiagnosis(String tiCode) {
+		diagnoses.add(tiCode);
 	}
 
 }
