@@ -25,35 +25,25 @@ import ch.itmed.radcentre.ui.MessageBoxUtil;
 public final class KontaktImporter {
 	private static Logger logger = LoggerFactory.getLogger(KontaktImporter.class);
 
-	public static Kontakt getCostBearer(String name, String billingMethod) {
-
-		String insurance;
-		if (name.indexOf(" ") != -1) {
-			insurance = name.substring(0, name.indexOf(" ") - 1);
-		} else {
-			insurance = name;
+	public static Kontakt getCostBearerFromGln(String gln) {
+		if (gln.isEmpty()) {
+			logger.error("No Kontakt found because GLN is empty");
+			MessageBoxUtil.setErrorMsg("Kein Kostenträger gefunden, weil GLN leer ist.");
+			throw new NullPointerException("No Kontakt found because GLN is empty");
 		}
 
-		String bm;
-		if (billingMethod.equalsIgnoreCase("UVG")) {
-			bm = "UVG";
-		} else {
-			bm = "KVG";
-		}
-
-		Query<Kontakt> query = new Query<>(Kontakt.class);
-		query.add(Kontakt.FLD_IS_ORGANIZATION, Query.EQUALS, "1");
-		query.add("Bezeichnung1", Query.LIKE, "%" + insurance + "%");
-		query.add("TitelSuffix", Query.EQUALS, bm);
-		List<Kontakt> result = query.execute();
+		Query<Xid> query = new Query<>(Xid.class);
+		query.add(Xid.FLD_DOMAIN, Query.EQUALS, "www.xid.ch/id/ean");
+		query.add(Xid.FLD_ID_IN_DOMAIN, Query.EQUALS, gln);
+		List<Xid> result = query.execute();
 
 		if (result.size() == 0) {
-			MessageBoxUtil.setErrorMsg("Es wurde kein Kostenträger namens \"" + insurance + "\" gefunden.");
-			logger.debug("No insurance Kontakt found with name: " + name);
-			throw new NullPointerException("No insurance Kontakt found with name: " + name);
+			logger.error("No Kontakt found with GLN: " + gln);
+			MessageBoxUtil.setErrorMsg("Kein Kostenträger mit GLN \"" + gln + "\" gefunden.");
+			throw new NullPointerException("No Kontakt found with GLN: " + gln);
 		} else {
-			Kontakt costBearer = result.get(0);
-			return costBearer;
+			Xid xid = result.get(0);
+			return (Kontakt) xid.getObject();
 		}
 	}
 
