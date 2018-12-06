@@ -11,9 +11,7 @@
 
 package ch.itmed.radcentre.ui;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.PlatformUI;
+import ch.elexis.core.ui.util.SWTHelper;
 
 public final class MessageBoxUtil {
 	private static String errorMsg;
@@ -23,16 +21,7 @@ public final class MessageBoxUtil {
 	}
 
 	public static void showErrorDialog(final String title) {
-
-		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-			public void run() {
-				MessageBox messgeBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						SWT.ICON_ERROR);
-				messgeBox.setText(title);
-				messgeBox.setMessage(errorMsg);
-				messgeBox.open();
-			}
-		});
+		SWTHelper.showError(title, errorMsg);
 	}
 
 }
