@@ -37,15 +37,14 @@ public class XMLExporterTiers {
 		Fall fall = rechnung.getFall();
 		Patient patient = fall.getPatient();
 		Mandant mandant = rechnung.getMandant();
-		Kontakt kostentraeger = fall.getCostBearer();
-		
+	
 		String tiers = XMLExporter.TIERS_PAYANT;
 		Tiers tiersType = fall.getTiersType();
 		if(Tiers.GARANT == tiersType) {
 			tiers = XMLExporter.TIERS_GARANT;
-			kostentraeger = fall.getGarant();
 		}
 		
+		Kontakt kostentraeger = fall.getCostBearer();
 		if (kostentraeger == null) {
 			kostentraeger = patient;
 		}
@@ -199,7 +198,15 @@ public class XMLExporterTiers {
 	}
 	
 	/**
-	 * Get the {@link Kontakt} of the guarantor for a bill using the paymentMode, patient and fall.
+	 * Get the {@link Kontakt} of the guarantor for a bill using the paymentMode, patient and fall. 
+	 * 
+	 * <ul>
+	 * <li>Fall TP, Guardian defined -> return guardian
+	 * <li>Fall TP, No Guardian defined -> return patient
+	 * <li>Fall TG, Guarantor equals Patient, Guardian defined -> return guardian
+	 * <li>Fall TG, Guarantor equals Patient, No Guardian defined -> return patient
+	 * <li>Fall TG, Guarantor not equals Patient -> return guarantor
+	 * </ul>
 	 * 
 	 * @param paymentMode
 	 * @param patient
@@ -210,7 +217,12 @@ public class XMLExporterTiers {
 		Kontakt ret;
 		if (paymentMode.equals(XMLExporter.TIERS_PAYANT)) {
 			// TP
-			ret = fall.getCostBearer();
+			Kontakt legalGuardian = patient.getLegalGuardian();
+			if(legalGuardian != null) {
+				return legalGuardian;
+			} else {
+				return patient;
+			}
 		} else if (paymentMode.equals(XMLExporter.TIERS_GARANT)) {
 			// TG
 			Kontakt invoiceReceiver = fall.getGarant();
@@ -230,4 +242,5 @@ public class XMLExporterTiers {
 		ret.getPostAnschrift(true);
 		return ret;
 	}
+	
 }
