@@ -11,9 +11,11 @@
 
 package ch.itmed.radcentre.converter;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+import ch.rgw.tools.TimeTool;
 
 public class DataConverter {
 
@@ -32,9 +34,7 @@ public class DataConverter {
 
 	public static String instantToElexisDate(String s) {
 		Instant instant = Instant.parse(s);
-		Date date = Date.from(instant);
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-		return formatter.format(date);
+		return new TimeTool(LocalDateTime.ofInstant(instant, ZoneId.systemDefault())).toString(TimeTool.DATE_GER);
 	}
 
 }
