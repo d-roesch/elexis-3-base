@@ -14,6 +14,7 @@ package ch.itmed.radcentre.data.dao;
 public class PatientDao {
 	
 	private String id;
+	private String legacyId;
 	private String firstName;
 	private String lastName;
 	private String birthDate;
@@ -26,6 +27,9 @@ public class PatientDao {
 	
 	public String getId() {
 		return id;
+	}
+	public String getLegacyId() {
+		return legacyId;
 	}
 	public String getFirstName() {
 		return firstName;
@@ -55,7 +59,9 @@ public class PatientDao {
 		return country;
 	}
 	public void setId(String id) {
-		this.id = id;
+		setLegacyId(id);
+		int numericId = Integer.parseUnsignedInt(id);
+		this.id = Integer.toString(numericId);
 	}
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
@@ -83,5 +89,9 @@ public class PatientDao {
 	}
 	public void setCountry(String country) {
 		this.country = country;
+	}
+	
+	private void setLegacyId(String legacyId) {
+		this.legacyId = legacyId;
 	}
 }

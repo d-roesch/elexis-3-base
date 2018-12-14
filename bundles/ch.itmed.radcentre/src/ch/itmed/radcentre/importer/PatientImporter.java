@@ -44,6 +44,10 @@ public final class PatientImporter {
 	}
 
 	private boolean checkExistingPatient() {
+		if (checkExistingLegacyPatient()) {
+			return true;
+		}
+
 		Query<Patient> query = new Query<>(Patient.class);
 		query.add(Patient.FLD_PATID, Query.EQUALS, patDao.getId());
 		List<Patient> patient = query.execute();
@@ -54,6 +58,24 @@ public final class PatientImporter {
 			// patient does exist
 
 			this.patient = patient.get(0);
+			checkForMutations();
+
+			return true;
+		}
+	}
+
+	private boolean checkExistingLegacyPatient() {
+		Query<Patient> query = new Query<>(Patient.class);
+		query.add(Patient.FLD_PATID, Query.EQUALS, patDao.getLegacyId());
+		List<Patient> patient = query.execute();
+		if (patient.size() == 0) {
+			// patient does not exist
+			return false;
+		} else {
+			// patient does exist
+
+			this.patient = patient.get(0);
+			this.patient.set("PatientNr", patDao.getId());
 			checkForMutations();
 
 			return true;
